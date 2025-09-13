@@ -19,7 +19,7 @@ WITH
         , COUNT(*) AS paid_count -- 課金回数
       FROM `iris-toreca-469505.daily_dashbord.point_purchases_log`
       WHERE 
-        partition_date = "2025-08-21" -- ここは動的にとる感じに書き換え
+        partition_date = "2025-08-21" -- ここは最終的に複数断面とる感じに書き換え
       GROUP BY 1
   )
   , regist_ AS ( -- 登録者数計算
@@ -28,7 +28,7 @@ WITH
         , COUNT(DISTINCT(user_id)) AS regist_UU -- 登録者数
       FROM `iris-toreca-469505.daily_dashbord.users_regist_log`
       WHERE
-        partition_date = "2025-08-21" -- ここは動的にとる感じに書き換え
+        partition_date = "2025-08-21" -- ここは動的前日断面にとる感じに書き換え
       GROUP BY 1
   )
   , dau_ AS ( -- dau計算
@@ -37,7 +37,7 @@ WITH
       , COUNT(DISTINCT(user_id)) AS dau -- dau
       FROM `iris-toreca-469505.daily_dashbord.point_activities_log`  
       WHERE 
-        partition_date = "2025-08-21" -- ここは動的にとる感じに書き換え
+        partition_date = "2025-08-21" -- ここは最終的に複数断面とる感じに書き換え
         AND activity_type != 4 -- point失効除外
       GROUP BY 1
   )
@@ -52,9 +52,18 @@ WITH
         , COUNT(DISTINCT(id))AS s_orip  -- 販売開始オリパ
       FROM `iris-toreca-469505.daily_dashbord.packs_master`
       WHERE 
-        partition_date = "2025-08-21" -- ここは動的にとる感じに書き換え
+        partition_date = "2025-08-21" -- ここは動的に前日断面とる感じに書き換え
       GROUP BY 1
   )
+  , stock_point_ AS ( -- 保有ポイント
+      SELECT
+        partition_date AS day
+        , SUM(point) AS stock_points
+      FROM `iris-toreca-469505.daily_dashbord.stock_point`
+      WHERE 
+        partition_date = "2025-08-21" -- ここは最終的に複数断面とる感じに書き換え
+      GROUP BY 1
+  ) 
   , join_table_ AS (
       SELECT
         budget_.date AS day
@@ -70,6 +79,7 @@ WITH
         , pay_.total_amount / pay_.paid_UU AS arppu -- 客単価
         , pay_.paid_count AS paid_count -- 課金回数
         , pay_.total_amount / pay_.paid_count AS arpu -- 課金単価
+        , stock_point_.stock_points AS stock_points -- 保有ポイント合計
       FROM budget_ 
       LEFT JOIN pay_ 
         ON budget_.date = pay_.day
@@ -81,6 +91,8 @@ WITH
         ON budget_.date = dau_.day
       LEFT JOIN regist_
         ON budget_.date = regist_.day
+      LEFT JOIN stock_point_
+        ON budget_.date = stock_point_.day
   )
 SELECT * 
 FROM join_table_
