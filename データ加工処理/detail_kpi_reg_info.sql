@@ -11,7 +11,7 @@ WITH
           END AS reg_seg -- 利用月数セグメント
       FROM `iris-toreca-469505.daily_dashbord.users_regist_log`
       WHERE
-        partition_date = "2025-08-21" -- ここは動的前日断面にとる感じに書き換え
+        partition_date = DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY) -- ここは前日断面取得
   )
   , pay_sum_ AS ( -- その月、日時点の課金額を計算
       SELECT
@@ -19,9 +19,8 @@ WITH
         , SUM(amount) AS total_amount
       FROM `iris-toreca-469505.daily_dashbord.point_purchases_log`
       WHERE 
-        partition_date = "2025-08-21" -- ここは最終的に複数断面とる感じに書き換え
-        -- AND DATE(created_at) >= DATE_TRUNC(CURRENT_DATE(), MONTH) -- 当月データに絞り込み           ######### あとでこの処理に戻す！！！ "##################"
-        AND DATE(created_at) >= DATE_TRUNC(DATE("2025-08-21"), MONTH)
+        partition_date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 32 DAY) AND DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY) -- 31日〜1日前のパーティション断面取得
+        AND DATE(created_at) >= DATE_TRUNC(CURRENT_DATE(), MONTH) -- 当月データに絞り込み 
       GROUP BY 1
   )
   , pay_seg_ AS ( -- その月、日時点の課金セグメント付与
@@ -54,9 +53,8 @@ WITH
         , SUM(amount) AS total_amount
       FROM `iris-toreca-469505.daily_dashbord.point_purchases_log`
       WHERE 
-        partition_date = "2025-08-21" -- ここは最終的に複数断面とる感じに書き換え
-        -- AND DATE(created_at) >= DATE_TRUNC(CURRENT_DATE(), MONTH) -- 当月データに絞り込み           ######### あとでこの処理に戻す！！！ "##################"
-        AND DATE(created_at) >= DATE_TRUNC(DATE("2025-08-21"), MONTH)
+        partition_date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 32 DAY) AND DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY) -- 31日〜1日前のパーティション断面取得
+        AND DATE(created_at) >= DATE_TRUNC(CURRENT_DATE(), MONTH) -- 当月データに絞り込み
       GROUP BY 1,2
   )
   , pay_info_ AS ( -- 課金情報にユーザー情報ジョイン
@@ -88,7 +86,7 @@ WITH
         , SUM(point) AS cons_point
       FROM `iris-toreca-469505.daily_dashbord.point_activities_log`  
       WHERE 
-        partition_date = "2025-08-21" -- ここは最終的に複数断面とる感じに書き換え
+        partition_date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 32 DAY) AND DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY) -- 31日〜1日前のパーティション断面取得
       GROUP BY 1,2,3
   )
   , point_user_base_ AS ( -- ポイント情報とユーザー情報ジョイン

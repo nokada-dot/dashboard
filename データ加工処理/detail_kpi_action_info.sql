@@ -11,7 +11,7 @@ WITH
           END AS reg_seg -- 利用月数セグメント
       FROM `iris-toreca-469505.daily_dashbord.users_regist_log`
       WHERE
-        partition_date = "2025-08-21" -- ここは動的前日断面にとる感じに書き換え
+        partition_date = DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY) -- ここは前日断面取得
   )
   , activity_ AS ( -- 行動ログ
       SELECT
@@ -19,10 +19,9 @@ WITH
         , DATE(created_at) AS day
       FROM `iris-toreca-469505.daily_dashbord.point_activities_log`  
       WHERE 
-        partition_date = "2025-08-21" -- ここは最終的に複数断面とる感じに書き換え
+        partition_date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 32 DAY) AND DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY) -- 31日〜1日前のパーティション断面取得
         AND activity_type != 4 -- point失効除く
-        -- AND DATE(created_at) >= DATE_TRUNC(CURRENT_DATE(), MONTH) -- 当月データに絞り込み           ######### あとでこの処理に戻す！！！ "##################"
-        AND DATE(created_at) >= DATE_TRUNC(DATE("2025-08-21"), MONTH)
+        AND DATE(created_at) >= DATE_TRUNC(CURRENT_DATE(), MONTH) -- 当月データに絞り込み 
   )
   , action_ AS ( -- アクションログとセグメントジョイン
       SELECT

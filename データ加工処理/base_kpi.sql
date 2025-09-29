@@ -7,7 +7,7 @@ WITH
         , SUM(point) AS cons_point
       FROM `iris-toreca-469505.daily_dashbord.point_activities_log`  
       WHERE 
-        partition_date = "2025-08-21" -- ここは最終的に複数断面とる感じに書き換え
+        partition_date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 32 DAY) AND DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY) -- 31日〜1日前のパーティション断面取得
         AND activity_type = 1 -- オリパ引くことによる消費に限定
       GROUP BY 1
   )
@@ -19,7 +19,7 @@ WITH
         , COUNT(*) AS paid_count -- 課金回数
       FROM `iris-toreca-469505.daily_dashbord.point_purchases_log`
       WHERE 
-        partition_date = "2025-08-21" -- ここは最終的に複数断面とる感じに書き換え
+        partition_date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 32 DAY) AND DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY) -- 31日〜1日前のパーティション断面取得
       GROUP BY 1
   )
   , regist_ AS ( -- 登録者数計算
@@ -28,7 +28,7 @@ WITH
         , COUNT(DISTINCT(user_id)) AS regist_UU -- 登録者数
       FROM `iris-toreca-469505.daily_dashbord.users_regist_log`
       WHERE
-        partition_date = "2025-08-21" -- ここは動的前日断面にとる感じに書き換え
+        partition_date = DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY) -- ここは前日断面取得
       GROUP BY 1
   )
   , dau_ AS ( -- dau計算
@@ -37,7 +37,7 @@ WITH
       , COUNT(DISTINCT(user_id)) AS dau -- dau
       FROM `iris-toreca-469505.daily_dashbord.point_activities_log`  
       WHERE 
-        partition_date = "2025-08-21" -- ここは最終的に複数断面とる感じに書き換え
+        partition_date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 32 DAY) AND DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY) -- 31日〜1日前のパーティション断面取得
         AND activity_type != 4 -- point失効除外
       GROUP BY 1
   )
@@ -52,7 +52,7 @@ WITH
         , COUNT(DISTINCT(id))AS s_orip  -- 販売開始オリパ
       FROM `iris-toreca-469505.daily_dashbord.packs_master`
       WHERE 
-        partition_date = "2025-08-21" -- ここは動的に前日断面とる感じに書き換え
+        partition_date = DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY) -- ここは前日断面取得
       GROUP BY 1
   )
   , stock_point_ AS ( -- 保有ポイント
@@ -61,7 +61,7 @@ WITH
         , SUM(point) AS stock_points
       FROM `iris-toreca-469505.daily_dashbord.stock_point`
       WHERE 
-        partition_date = "2025-08-21" -- ここは最終的に複数断面とる感じに書き換え
+        partition_date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 32 DAY) AND DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY) -- 31日〜1日前のパーティション断面取得
       GROUP BY 1
   ) 
   , join_table_ AS (
