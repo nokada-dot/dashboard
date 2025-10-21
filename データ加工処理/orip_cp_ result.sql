@@ -17,7 +17,7 @@ WITH
       LEFT JOIN `iris-toreca-469505.daily_dashbord.cp_master` as cp
         ON pl.pack_id = cp.pack_id
         WHERE 
-          partition_date = "2025-08-21" -- ここは最終的に複数断面とる感じに書き換え
+          partition_date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 32 DAY) AND DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY) -- 31日〜1日前のパーティション断面取得
         AND activity_type = 1 -- オリパ引くことによる消費に限定
   )
   , cal_orip_notcp AS ( -- 日、オリパごとの消費ポイントを集計するクエリ(CP対象外)
