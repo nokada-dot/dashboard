@@ -1,6 +1,6 @@
 -- detail_kpi_reg_infoを作るクエリ
 
-DECLARE target_date DATE DEFAULT DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY); -- 実行日の前日を対象
+DECLARE target_date DATE DEFAULT DATE_SUB(CURRENT_DATE("Asia/Tokyo"), INTERVAL 1 DAY); -- 実行日の前日を対象
 
 INSERT INTO `iris-toreca-469505.daily_dashbord.detail_kpi_reg_info`
 (_PARTITIONTIME, day, type, reg_seg, val)
@@ -10,8 +10,8 @@ WITH
       SELECT
         user_id,
         CASE
-          WHEN DATE_DIFF(CURRENT_DATE(), DATE(created_at), MONTH) = 0 THEN '01_登録初月'
-          WHEN DATE_DIFF(CURRENT_DATE(), DATE(created_at), MONTH) <= 6 THEN '02_短期利用者(2~6ヶ月)'
+          WHEN DATE_DIFF(CURRENT_DATE("Asia/Tokyo"), DATE(created_at), MONTH) = 0 THEN '01_登録初月'
+          WHEN DATE_DIFF(CURRENT_DATE("Asia/Tokyo"), DATE(created_at), MONTH) <= 6 THEN '02_短期利用者(2~6ヶ月)'
           ELSE '03_長期利用者(7ヶ月以上)'
         END AS reg_seg
       FROM `iris-toreca-469505.daily_dashbord.users_regist_log`
@@ -24,8 +24,8 @@ WITH
         SUM(amount) AS total_amount
       FROM `iris-toreca-469505.daily_dashbord.point_purchases_log`
       WHERE 
-        partition_date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 32 DAY) AND DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY)
-        AND DATE(created_at) >= DATE_TRUNC(CURRENT_DATE(), MONTH)
+        partition_date BETWEEN DATE_SUB(CURRENT_DATE("Asia/Tokyo"), INTERVAL 32 DAY) AND DATE_SUB(CURRENT_DATE("Asia/Tokyo"), INTERVAL 1 DAY)
+        AND DATE(created_at) >= DATE_TRUNC(CURRENT_DATE("Asia/Tokyo"), MONTH)
       GROUP BY 1
   ),
 
@@ -61,8 +61,8 @@ WITH
         SUM(amount) AS total_amount
       FROM `iris-toreca-469505.daily_dashbord.point_purchases_log`
       WHERE 
-        partition_date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 32 DAY) AND DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY)
-        AND DATE(created_at) >= DATE_TRUNC(CURRENT_DATE(), MONTH)
+        partition_date BETWEEN DATE_SUB(CURRENT_DATE("Asia/Tokyo"), INTERVAL 32 DAY) AND DATE_SUB(CURRENT_DATE("Asia/Tokyo"), INTERVAL 1 DAY)
+        AND DATE(created_at) >= DATE_TRUNC(CURRENT_DATE("Asia/Tokyo"), MONTH)
       GROUP BY 1,2
   ),
 
@@ -97,7 +97,7 @@ WITH
         SUM(point) AS cons_point
       FROM `iris-toreca-469505.daily_dashbord.point_activities_log`
       WHERE 
-        partition_date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 32 DAY) AND DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY)
+        partition_date BETWEEN DATE_SUB(CURRENT_DATE("Asia/Tokyo"), INTERVAL 32 DAY) AND DATE_SUB(CURRENT_DATE("Asia/Tokyo"), INTERVAL 1 DAY)
       GROUP BY 1,2,3
   ),
 

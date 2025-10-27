@@ -15,8 +15,8 @@ WITH
         SUM(point) AS cons_point
       FROM `iris-toreca-469505.daily_dashbord.point_activities_log`  
       WHERE 
-        partition_date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 32 DAY)
-        AND DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY)
+        partition_date BETWEEN DATE_SUB(CURRENT_DATE("Asia/Tokyo"), INTERVAL 32 DAY)
+        AND DATE_SUB(CURRENT_DATE("Asia/Tokyo"), INTERVAL 1 DAY)
         AND activity_type = 1 -- オリパ引くことによる消費に限定
       GROUP BY 1
   ),
@@ -29,8 +29,8 @@ WITH
         COUNT(*) AS paid_count
       FROM `iris-toreca-469505.daily_dashbord.point_purchases_log`
       WHERE 
-        partition_date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 32 DAY)
-        AND DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY)
+        partition_date BETWEEN DATE_SUB(CURRENT_DATE("Asia/Tokyo"), INTERVAL 32 DAY)
+        AND DATE_SUB(CURRENT_DATE("Asia/Tokyo"), INTERVAL 1 DAY)
       GROUP BY 1
   ),
 
@@ -40,7 +40,7 @@ WITH
         COUNT(DISTINCT user_id) AS regist_UU
       FROM `iris-toreca-469505.daily_dashbord.users_regist_log`
       WHERE
-        partition_date = DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY)
+        partition_date = DATE_SUB(CURRENT_DATE("Asia/Tokyo"), INTERVAL 1 DAY)
       GROUP BY 1
   ),
 
@@ -50,8 +50,8 @@ WITH
         COUNT(DISTINCT user_id) AS dau
       FROM `iris-toreca-469505.daily_dashbord.point_activities_log`  
       WHERE 
-        partition_date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 32 DAY)
-        AND DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY)
+        partition_date BETWEEN DATE_SUB(CURRENT_DATE("Asia/Tokyo"), INTERVAL 32 DAY)
+        AND DATE_SUB(CURRENT_DATE("Asia/Tokyo"), INTERVAL 1 DAY)
         AND activity_type != 4 -- point失効除外
       GROUP BY 1
   ),
@@ -68,7 +68,7 @@ WITH
         COUNT(DISTINCT id) AS s_orip
       FROM `iris-toreca-469505.daily_dashbord.packs_master`
       WHERE 
-        partition_date = DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY)
+        partition_date = DATE_SUB(CURRENT_DATE("Asia/Tokyo"), INTERVAL 1 DAY)
       GROUP BY 1
   ),
 
@@ -78,8 +78,8 @@ WITH
         SUM(point) AS stock_points
       FROM `iris-toreca-469505.daily_dashbord.stock_point`
       WHERE 
-        partition_date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 32 DAY)
-        AND DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY)
+        partition_date BETWEEN DATE_SUB(CURRENT_DATE("Asia/Tokyo"), INTERVAL 32 DAY)
+        AND DATE_SUB(CURRENT_DATE("Asia/Tokyo"), INTERVAL 1 DAY)
       GROUP BY 1
   ),
 
@@ -115,7 +115,7 @@ WITH
   )
 
 SELECT
-  TIMESTAMP(DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY)) AS _PARTITIONTIME, -- 前日分パーティション
+  TIMESTAMP(DATE_SUB(CURRENT_DATE("Asia/Tokyo"), INTERVAL 1 DAY)) AS _PARTITIONTIME, -- 前日分パーティション
   day,
   budget,
   total_amount,

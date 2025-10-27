@@ -1,5 +1,5 @@
 -- detail_kpi_action_infoを作るクエリ
-DECLARE target_date DATE DEFAULT DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY); -- 前日データを対象
+DECLARE target_date DATE DEFAULT DATE_SUB(CURRENT_DATE("Asia/Tokyo"), INTERVAL 1 DAY); -- 前日データを対象
 
 INSERT INTO `iris-toreca-469505.daily_dashbord.detail_kpi_action_info`
 (day, reg_seg, active_UU, _PARTITIONTIME)
@@ -9,8 +9,8 @@ WITH
       SELECT
         user_id,
         CASE
-          WHEN DATE_DIFF(CURRENT_DATE(), DATE(created_at), MONTH) = 0 THEN '01_登録初月'
-          WHEN DATE_DIFF(CURRENT_DATE(), DATE(created_at), MONTH) <= 6 THEN '02_短期利用者(2~6ヶ月)'
+          WHEN DATE_DIFF(CURRENT_DATE("Asia/Tokyo"), DATE(created_at), MONTH) = 0 THEN '01_登録初月'
+          WHEN DATE_DIFF(CURRENT_DATE("Asia/Tokyo"), DATE(created_at), MONTH) <= 6 THEN '02_短期利用者(2~6ヶ月)'
           ELSE '03_長期利用者(7ヶ月以上)'
         END AS reg_seg
       FROM `iris-toreca-469505.daily_dashbord.users_regist_log`
@@ -23,10 +23,10 @@ WITH
         DATE(created_at) AS day
       FROM `iris-toreca-469505.daily_dashbord.point_activities_log`
       WHERE
-        partition_date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 32 DAY)
-                          AND DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY)
+        partition_date BETWEEN DATE_SUB(CURRENT_DATE("Asia/Tokyo"), INTERVAL 32 DAY)
+                          AND DATE_SUB(CURRENT_DATE("Asia/Tokyo"), INTERVAL 1 DAY)
         AND activity_type != 4 -- point失効除く
-        AND DATE(created_at) >= DATE_TRUNC(CURRENT_DATE(), MONTH) -- 当月データのみ
+        AND DATE(created_at) >= DATE_TRUNC(CURRENT_DATE("Asia/Tokyo"), MONTH) -- 当月データのみ
   ),
 
   action_ AS ( -- アクションログとセグメントジョイン

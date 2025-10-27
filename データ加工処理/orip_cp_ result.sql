@@ -25,8 +25,8 @@ WITH
       LEFT JOIN `iris-toreca-469505.daily_dashbord.cp_master` AS cp
         ON pl.pack_id = cp.pack_id
       WHERE 
-        pl.partition_date BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 32 DAY)
-                              AND DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY)
+        pl.partition_date BETWEEN DATE_SUB(CURRENT_DATE("Asia/Tokyo"), INTERVAL 32 DAY)
+                              AND DATE_SUB(CURRENT_DATE("Asia/Tokyo"), INTERVAL 1 DAY)
         AND pl.activity_type = 1 -- オリパ引くことによる消費に限定
   ),
 
@@ -68,7 +68,7 @@ WITH
   )
 
 SELECT
-  TIMESTAMP(DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY)) AS _PARTITIONTIME, -- 前日分パーティション
+  TIMESTAMP(DATE_SUB(CURRENT_DATE("Asia/Tokyo"), INTERVAL 1 DAY)) AS _PARTITIONTIME, -- 前日分パーティション
   u.day,
   u.orip_name,
   u.cp_flg,
